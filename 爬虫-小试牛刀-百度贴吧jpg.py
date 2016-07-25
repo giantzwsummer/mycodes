@@ -2,11 +2,15 @@ import urllib.request
 from bs4 import BeautifulSoup
 import re
 import os
+import socket
+
+timeout = 2
+socket.setdefaulttimeout(timeout)
 
 #‘准备保存图片的文件夹'
 location=input('where to store:')#'获得文件名'
-os.mkdir(location) #'以获得的文件名创建这个文件'
-os.chdir(os.path.join(os.getcwd(), location)) #'把这个文件加入到当前工作目录（os.getcwd()），然后切换到这个目录下。'
+os.makedirs(location) #'以获得的文件名创建这个文件'
+os.chdir(location) #'把这个文件加入到当前工作目录（os.getcwd()），然后切换到这个目录下。'
 #'准备一个空列表，加入开始url'
 url_all=[]
 url = input('your url:')
@@ -61,7 +65,7 @@ total=[]#'创建列表，将每个页面下图片数量x加入列表，最后求
 for a_url in urls:
 #'获得每个url中的图片下载地址,此处图片名称数量还有待优化'
         response_= get_url(a_url)
-        soup = BeautifulSoup(response_,'html.parser',from_encoding='utf-8')
+        soup = BeautifulSoup(response,'html.parser',from_encoding='utf-8')
         links =soup.find_all('img',class_='BDE_Image',src=re.compile(r"\.jpg"))
         
         x=0
