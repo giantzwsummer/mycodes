@@ -74,7 +74,7 @@ if response==None:
 
 #'解析获得除主url外其它页面url'
 soup = BeautifulSoup(response,'html.parser',from_encoding='utf-8')
-urllinks= soup.find_all('a',href=re.compile(r'/p/\d+.pn=')) #'这步筛选没有直接取得剩余url，有重复url，有待优化'
+urllinks= soup.find_all('img',class_='BDE_Image',src=re.compile(r'/p/\d+.pn=')) #'这步筛选没有直接取得剩余url，有重复url，有待优化'
 
 #'补全url'
 for link in urllinks:
@@ -91,6 +91,7 @@ for each_url in urls:
 
    
 y=0
+x=0
 total=[]#'创建列表，将每个页面下图片数量x加入列表，最后求和得出下载了多少图片'
 for a_url in urls:
 #'获得每个url中的图片下载地址,此处图片名称数量还有待优化'
@@ -102,7 +103,6 @@ for a_url in urls:
 ##            print('no links at all')
 ##            os._exit(0)
         
-        x=0
         for link in links:
             src=link['src']
             down_load(src,x)
