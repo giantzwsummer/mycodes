@@ -32,6 +32,8 @@ def get_img(url,x,name):
 
 #'定义寻找所有待爬取url函数，防错机制'
 def get_url(root_url):
+        url_all=set()
+        url_all.add(root_url)
         try:
                 request = urllib.request.Request(root_url)
                 request.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1)')
@@ -40,25 +42,20 @@ def get_url(root_url):
                 soup = BeautifulSoup(response,'html.parser',from_encoding='utf-8')
                 urllinks= soup.find_all('a',src=re.compile(r'/p/\d+.pn='))#'这步筛选没有直接取得剩余url'
                 #'补全url'
-                url_all=[]
                 for link in urllinks:
                    
                     linkurl='http://tieba.baidu.com'+link['href']#'字符替换，感觉比下面正则替换简单，但速度比较未知'
                 ##   linkurl=re.sub(r'/p/\d+.pn=',link['href'],'http://tieba.baidu.com'+link['href'])
-                    url_all.append(linkurl)
-                #'排序去重'
-                print('the urls you wanted are blew:')
-                urls=sorted(set(url_all))#'去重排序'
-                for each_url in urls :
-                    print(each_url)#'打印所有要爬取的url'
-                return urls
+                    url_all.add(linkurl)
+                
                        
         except urllib.error.URLError as e:
                 if hasattr(e,'code'):
                     print(e.code)
                 if hasattr(e,'reason'):
                     print(e.reason)
-                return None
+                
+        return url_all
             
         
 #‘定义图片下载函数’
@@ -98,9 +95,6 @@ if  __name__ == '__main__':
     #'urls--所有待爬的地址'
     root_url = input('your url:')
     urls = get_url(root_url)
-    if urls==None:
-        print('on other urls')
-    urls.insert(0,root_url)
     print('we have got these urls:')
     for each in urls:
         print(each)
