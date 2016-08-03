@@ -11,9 +11,10 @@ def get_imgurl(url,x,name):
         headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36'}
         r=requests.get(url, headers=headers)
         soup = BeautifulSoup(r.text,'html.parser',from_encoding='utf-8')
-        links =soup.find_all('img',class_='BDE_Image',src=re.compile(r"\.jpg"))
+        links =soup.find_all('img',src=re.compile(r"\.jpg"))
         for link in links:
             src=link['src']
+            print(src)
             x=down_load(src,x,name)
             time.sleep(1)
         
@@ -31,7 +32,7 @@ def get_url(url):
     r=requests.get(url, headers=headers)
     #'解析获得除主url外其它页面url'
     soup = BeautifulSoup(r.text,'html.parser',from_encoding='utf-8')
-    links= soup.find_all('a',src=re.compile(r'/p/\d+.pn='))#'这步筛选没有直接取得剩余url'
+    links= soup.find_all('a',href=re.compile(r"\/search\/flip\?tn=baiduimage"))#'这步筛选没有直接取得剩余url'
     #'补全url'
         
     while len(undo)<15:
@@ -45,7 +46,7 @@ def get_url(url):
                
                 undo.add(url_find)
                 time.sleep(1)
-                get_urls(url_find)
+                get_url(url_find)
         return undo 
         
             
@@ -109,9 +110,9 @@ def main():
     for each in undo:
         
         print(each)
-        get_imgurl(each,x,name)
-        print('All done') 
-        print('the numbers of pictures downloaded is %d:'%x) 
+        x=get_imgurl(each,x,name)
+    print('All done') 
+    print('the numbers of pictures downloaded is %d:'%x) 
         
     
                    
