@@ -1,3 +1,4 @@
+#百度图片下载，python3，默认15个页面以内，单线程速度慢，有待优化！
 import requests
 from lxml import etree
 import re
