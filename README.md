@@ -1,3 +1,3 @@
 # mycodes
 
-use python3 urllib.request download pictures from baidu tieba
+use python3 requests download pictures from baidu picture（flip）
