@@ -101,9 +101,9 @@ def main():
                    
                         
 if  __name__ == '__main__':
-    global undo
-    global name
-    global x
+##    global undo
+##    global name
+##    global x
     undo=set()
     name=input('img name：')
     x=0
