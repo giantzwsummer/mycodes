@@ -13,23 +13,27 @@ x=0
 q=queue.Queue()
 
 
-##class MyThread(threading.Thread) :
-##
-##    def __init__(self, func) :
-##        super(MyThread, self).__init__()  #调用父类的构造函数
-##        self.func = func  #传入线程函数逻辑
-##
-##    def run(self) :
-##        self.func()
+class MyThread(threading.Thread) :
+
+    def __init__(self, name,func) :
+        super().__init__()  #调用父类的构造函数
+        self.name = name
+        self.func = func  #传入线程函数逻辑
+
+    def run(self):
+        threadLock.acquire()
+        print("Starting"+self.name)
+        worker()
+        threadLock.release()
 
 def worker():
     global q
     while not q.empty():
-        url = q.get(block=False)
+        url = q.get()
         imglink = get_imgurl(url)
         get_img(imglink)
         sleep(1)
-        q.task_done()
+##        q.task_done()
         
 ##def where_store():
 ##    #‘准备保存图片的文件夹'
@@ -125,7 +129,7 @@ def main():
     print('start time %s'%ctime())
     get_url(root_url)
     for each in undo:
-        q.put(real_url,block=False)
+        q.put(real_url)
     
     
     #'准备多线程'
