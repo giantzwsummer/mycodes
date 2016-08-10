@@ -25,7 +25,7 @@ q=queue.Queue()
 def worker():
     global q
     while not q.empty():
-        url = q.get_nowait()
+        url = q.get(block=False)
         imglink = get_imgurl(url)
         get_img(imglink)
         sleep(1)
@@ -52,7 +52,7 @@ def worker():
 #'定义寻找所有待爬取url函数，防错机制'
 def get_url(url):
     undo=set()
-    global q
+    
     headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36'}
     if not url:
         url=root_url
@@ -69,7 +69,7 @@ def get_url(url):
             real_url =strinfo.sub('',url_find)   
             if real_url not in undo:
                 undo.add(real_url)
-                q.put_nowait(real_url)
+                
                 try:
                     get_url(real_url)
                 except:
@@ -116,7 +116,7 @@ def get_img(src):
 ##            
 def main():
     global q
-    
+    global undo
    
     root_url = 'http://image.baidu.com/search/flip?tn=baiduimage&ie=utf-8&word='+name+'&ct=201326592&v=flip'
 ##    where_store()
@@ -124,6 +124,8 @@ def main():
     print('working now,"Ctrl+C" to stop if you like ')
     print('start time %s'%ctime())
     get_url(root_url)
+    for each in undo:
+        q.put(real_url,block=False)
     
     
     #'准备多线程'
