@@ -1,28 +1,27 @@
-#coding=utf-8
 import threading
-from time import ctime,sleep
-
-
-def music(func):
-    for i in range(2):
-        print( "I was listening to %s. %s" %(func,ctime()))
-        sleep(4)
-
-def move(func):
-    for i in range(2):
-        print ("I was at the %s! %s" %(func,ctime()))
-        sleep(5)
-
-threads = []
-t1 = threading.Thread(target=music,args=(u'爱情买卖',))
-threads.append(t1)
-t2 = threading.Thread(target=move,args=(u'阿凡达',))
-threads.append(t2)
-
-if __name__ == '__main__':
-    for t in threads:
-        t.setDaemon(True)
+ 
+class MyThread(threading.Thread):
+    def __init__(self,func,name,num):
+        super(MyThread,self).__init__()
+        self.name=name
+        self.num=num
+        self.func=func
+ 
+    def run(self):
+        self.func(self.num)
+def thread_fun(num):
+    for n in range(0, int(num)):
+        print(" I come from %s, num: %s" %( threading.currentThread().getName(), n))
+      
+   
+if __name__ == "__main__":
+    thread_list = list()
+    for i in range(0, 3):
+        thread_name='thread_%s'%i
+        t = MyThread(thread_fun,name=thread_name,num=20)
+        thread_list.append(t)
         t.start()
-    t.join()
-
-    print("all over %s" %ctime())
+    for thread in thread_list:
+        thread.join()
+    
+    print('have fun')

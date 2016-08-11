@@ -1,39 +1,43 @@
-# no threading
+# threading
 import requests
 from lxml import etree
 import re
 import os
-from time import ctime,sleep
+from time import sleep
+import datetime
 import threading
 import queue
 
 
 name=input('img name：')
 x=0
+undo=set()
 q=queue.Queue()
+lock = threading.Lock()
+thread_num=3
 
 
 class MyThread(threading.Thread) :
 
-    def __init__(self, name,func) :
-        super().__init__()  #调用父类的构造函数
+    def __init__(self,func,name) :
+        super(MyThread,self).__init__()  #调用父类的构造函数
         self.name = name
         self.func = func  #传入线程函数逻辑
 
     def run(self):
-        threadLock.acquire()
+        lock.acquire()
         print("Starting"+self.name)
-        worker()
-        threadLock.release()
+        self.func()
+        lock.release()
 
 def worker():
     global q
     while not q.empty():
         url = q.get()
-        imglink = get_imgurl(url)
-        get_img(imglink)
+        get_imgurl(url)
+        
         sleep(1)
-##        q.task_done()
+       
         
 ##def where_store():
 ##    #‘准备保存图片的文件夹'
@@ -55,12 +59,11 @@ def worker():
 
 #'定义寻找所有待爬取url函数，防错机制'
 def get_url(url):
-    undo=set()
+    global undo
     
     headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36'}
-    if not url:
-        url=root_url
-    r=requests.get(url, headers=headers,timeout=2)
+   
+    r=requests.get(url, headers=headers,timeout=10)
     #'解析获得除主url外其它页面url'
     tree = etree.HTML(r.text)
     links = tree.xpath('//*[@id="page"]/a')
@@ -73,12 +76,11 @@ def get_url(url):
             real_url =strinfo.sub('',url_find)   
             if real_url not in undo:
                 undo.add(real_url)
-                
                 try:
                     get_url(real_url)
                 except:
                     continue
-
+               
 
 
 #'定义寻找页面里所有待爬取img地址并下载，防错机制'
@@ -121,43 +123,35 @@ def get_img(src):
 def main():
     global q
     global undo
-   
+    global name
     root_url = 'http://image.baidu.com/search/flip?tn=baiduimage&ie=utf-8&word='+name+'&ct=201326592&v=flip'
 ##    where_store()
     
     print('working now,"Ctrl+C" to stop if you like ')
-    print('start time %s'%ctime())
     get_url(root_url)
     for each in undo:
-        q.put(real_url)
+        print(each)
+        q.put(each)
     
     
-    #'准备多线程'
-    
-##    get_url(root_url)
-##    for each in undo:
-##        get_imgurl(each)
-    
-    
-    
-        
-threads = []    
-t1 = threading.Thread(target=worker)
-threads.append(t1)
-t2 = threading.Thread(target=worker)
-threads.append(t2)
-
-                      
                         
 if  __name__ == '__main__':
-    for t in threads:
-        t.setDaemon(True)
+    t1=datetime.datetime.now()
+    print('start time %s'%datetime.datetime.now())
+    thread_list = []
+    for i in range(0,thread_num):
+        thread_name='thread_%s'%i
+        t = MyThread(worker,name=thread_name)
+        thread_list.append(t)
         t.start()
-    t.join()
-    
+    for thread in thread_list:
+        thread.join()
+   
+   
     main()
-    t2=ctime()
-    print('All done，end_time is %s'%ctime()) 
+    t2=datetime.datetime.now()
+    print('All done，end_time is %s'%datetime.datetime.now())
+    print('we spend %s to finsh'%(t2-t1))
     print('the numbers of pictures downloaded is %d:'%x) 
     
 
