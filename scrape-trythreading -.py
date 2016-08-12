@@ -13,7 +13,7 @@ name=input('img name：')
 x=0
 undo=set()
 q=queue.Queue()
-lock = threading.Lock()
+cond = threading.Condition()
 thread_num=3
 
 
@@ -23,20 +23,22 @@ class MyThread(threading.Thread) :
         super(MyThread,self).__init__()  #调用父类的构造函数
         self.name = name
         self.func = func  #传入线程函数逻辑
-
+        self.cond = cond
+        
     def run(self):
-        lock.acquire()
+        self.cond.acquire()
         print("Starting"+self.name)
         self.func()
-        lock.release()
-
-def worker():
-    global q
-    while not q.empty():
-        url = q.get()
-        get_imgurl(url)
+        self.cond.release()
+#something wrong here！
+##def worker():
+##    global q
+##    while not q.empty():
+##        url = q.get()
+##        print(url)
+##        get_imgurl(url)
         
-        sleep(1)
+        
        
         
 ##def where_store():
@@ -130,9 +132,9 @@ def main():
     print('working now,"Ctrl+C" to stop if you like ')
     get_url(root_url)
     for each in undo:
-        print(each)
+       
         q.put(each)
-    
+       
     
                         
 if  __name__ == '__main__':
@@ -143,7 +145,9 @@ if  __name__ == '__main__':
         thread_name='thread_%s'%i
         t = MyThread(worker,name=thread_name)
         thread_list.append(t)
+        
         t.start()
+        t.join()
     for thread in thread_list:
         thread.join()
    
